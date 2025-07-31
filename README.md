@@ -1,6 +1,6 @@
-# Data Warehouse and analytics project
+# Data Warehouse and Analytics project
 
-Welcome to the Data Warehouse and analytics project * respiratory
+Welcome to the Data Warehouse and analytics project * respiratory.
 This project demonstrates a comprehensive data warehouse and analytics solution, from building a data warehouse to generating actionable insights.
 
 # Project Requirements.
