@@ -117,7 +117,7 @@ begin
 		print '>> Inserting Data into: silver.erp_loc_a101'
 		insert into silver.erp_loc_a101(cid, cntry)
 		select 
-		replace (cid,  '-', '_') cid,
+		replace (cid,  '-', '') cid,
 		case when trim(cntry) in ('DE', 'Germany') then 'Germany'
 				when trim(cntry) in ('USA' , 'US', 'United States') then 'United States'
 				when trim(cntry) = '' or cntry is null then 'n/a'
