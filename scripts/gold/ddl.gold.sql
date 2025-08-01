@@ -74,7 +74,7 @@ if OBJECT_ID('gold.fact_sales' , 'v') is not null
 go
 
 create view gold.fact_sales as
-select sls_ord_num,
+select sls_ord_num ord_num,
 pr.product_key,
 cu.customer_key,
 sd.sls_order_dt order_date,
