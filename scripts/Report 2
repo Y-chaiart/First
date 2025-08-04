@@ -1,0 +1,92 @@
+/*
+==============================================================================================================
+Product Report
+==============================================================================================================
+Purpose :
+			- This report consolidates key product metrics and behaviours.
+
+Highlights :
+	1. Gather essential fields such as product name, category, sub-category and cost.
+	2. Segment products by revenue to identify high-performers, mid-range or low-performers.
+	3. Aggregates product-level metrics.
+	 - Total orders.
+	 - Total Sales.
+	 - Total quantities sold.
+	 - Total customers(unique).
+	 - Lifespan(in months).
+	4. Calculate valuable KPIs:
+	 - Regency (months since last order)
+	 - avg order revenue.
+	  -avg monthly revenue.
+==================================================================================================================
+*/
+create view gold.report_products as 
+with base_query as (
+select 
+s.ord_num,
+s.order_date,
+s.customer_key,
+s.sales_amount,
+s.quantity,
+p.product_key,
+p.product_name,
+p.category,
+p.subcategory,
+p.cost
+from gold.fact_sales s
+left join  gold.dim_products p
+on s. product_key = p.product_key
+where order_date is not null
+
+), product_aggregations as (
+
+select 
+product_key,
+product_name,
+category,
+subcategory,
+cost,
+datediff(year, min(order_date), max(order_date)) Lifespan,
+max(order_date) last_sale_date,
+count(distinct ord_num) TotalOrders,
+count(distinct (customer_key)) Totalcustomers,
+sum(sales_amount) TotalSales,
+sum(quantity) Totalquantity,
+round(avg(cast(sales_amount as float) / nullif (quantity,0)),1) avg_selling_price
+from base_query
+group by 
+product_key,
+product_name,
+category,
+subcategory,
+cost
+)
+
+select 
+product_key,
+product_name,
+category,
+subcategory,
+cost,
+last_sale_date,
+datediff(month, last_sale_date , getdate()) recency_in_months,
+case
+when TotalSales > 50000 then 'High-Performer'
+when TotalSales >= 10000 then 'Mid-Range'
+else 'Low-Performer'
+end Product_Segment,
+Lifespan,
+TotalOrders,
+TotalSales,
+Totalquantity,
+Totalcustomers,
+avg_selling_price,
+case 
+when TotalOrders = 0 then 0
+else TotalSales / TotalOrders
+end avg_order_revenue,
+case when Lifespan = 0 then TotalSales
+else TotalSales / Lifespan
+end avg_monthly_revenue
+from product_aggregations
+
